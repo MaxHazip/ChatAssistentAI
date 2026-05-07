@@ -63,6 +63,10 @@ services:
         condition: service_healthy
         restart: true
     command: bash scripts/prestart.sh
+    deploy:
+      resources:
+        limits:
+          memory: 8G
     env_file:
       - .env
     environment:
@@ -96,6 +100,12 @@ services:
         restart: true
       prestart:
         condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          memory: 8G
     env_file:
       - .env
     environment:

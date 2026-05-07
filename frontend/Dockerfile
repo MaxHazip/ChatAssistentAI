@@ -3,16 +3,20 @@ FROM oven/bun:1 AS build-stage
 
 WORKDIR /app
 
-COPY package.json bun.lock /app/
+COPY package.json /app/
+
+# Copy bun.lock if it exists, but don't fail if it doesn't
+COPY bun.lock* /app/
 
 COPY frontend/package.json /app/frontend/
 
 WORKDIR /app/frontend
 
-RUN bun install
+RUN bun install --no-save || bun install --force
 
 COPY ./frontend /app/frontend
 ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
 
 RUN bun run build
 

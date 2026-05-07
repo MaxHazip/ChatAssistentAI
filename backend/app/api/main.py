@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import items, login, private, users, utils, qdrant_search
+from app.api.routes import items, login, private, users, utils, qdrant_search, init_app
 from app.core.config import settings
 
 api_router = APIRouter()
@@ -9,6 +9,7 @@ api_router.include_router(users.router)
 api_router.include_router(utils.router)
 api_router.include_router(items.router)
 api_router.include_router(qdrant_search.router, prefix="/qdrant", tags=["qdrant"])
+api_router.include_router(init_app.router, prefix="/init", tags=["init"])
 
 
 if settings.ENVIRONMENT == "local":
