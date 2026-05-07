@@ -1,63 +1,117 @@
-from sentence_transformers import SentenceTransformer
-from qdrant_client import QdrantClient
-from qdrant_client.models import VectorParams, Distance
-from qdrant_client.models import PointStruct
+import json
+from qdrant_client.models import VectorParams, Distance, PointStruct
+from db import client
+from search_engine import get_embedding
 
 
-
-knowledge = [
-    "не работает форма обратной связи",
-    "не могу войти в админку",
-    "где посмотреть отчет по рекламе",
-    "поменяйте телефон на сайте"
-]
-
-client = QdrantClient("localhost", port=6333)
-
-client.recreate_collection(  # when end work(recreate_collection swith create_collection)
-    collection_name="kb",#knowladge base
-    vectors_config=VectorParams(
-        size=384,
-        distance=Distance.COSINE
-    )
-)
+collection_name = "kb"
 
 
-modelAI = SentenceTransformer('all-MiniLM-L6-v2')
+def create_collection():
 
-def get_embedding(text: str):
-    return modelAI.encode(text).tolist()
+    if client.collection_exists(collection_name):
+        client.delete_collection(collection_name)
 
-points = []
-
-for i, text in enumerate(knowledge):
-    vector = get_embedding(text)
-
-    points.append(
-        PointStruct(
-            id=i,
-            vector=vector,
-            payload={"text": text}
+    client.create_collection(
+        collection_name=collection_name,
+        vectors_config=VectorParams(
+            size=384,
+            distance=Distance.COSINE
         )
-    )  
+    )
+
+    print("Collection created")
 
 
-client.upsert(
-    collection_name="kb",
-    points=points
-)
+
+
+def load_knowledge():
+
+    with open("knowledge_base.json", "r", encoding="utf-8") as f:
+        knowledge = json.load(f)
+
+    return knowledge
+
+
+
+
+def upload_data():
+
+    knowledge = load_knowledge()
+
+    points = []
+
+    for item in knowledge:
+
+        vector = get_embedding(item["question"])
+
+        points.append(
+            PointStruct(
+                id=item["id"],
+                vector=vector,
+
+                payload={
+                    "question": item["question"],
+                    "answer": item["answer"],
+                    "status": item["status"],
+                    "confidence": item["confidence"],
+                    "additional_questions": item["additional_questions"]
+                }
+            )
+        )
+
+    client.upsert(
+        collection_name=collection_name,
+        points=points
+    )
+
+    print("Inserted:", len(points))
+
+
+
 
 def search(query: str):
+
     query_vector = get_embedding(query)
 
-    results = client.search(
-        collection_name="kb",
-        query_vector=query_vector,
+    results = client.query_points(
+        collection_name=collection_name,
+        query=query_vector,
         limit=3
-    )
+    ).points
+
     return results
 
 
 
-print(get_embedding("не работает форма")[:5]) #test
-print("Points inserted:", len(points))
+
+def process_query(query: str):
+
+    results = search(query)
+
+    best_result = results[0]
+
+    if best_result.score > 0.8:
+
+        return {
+            "status": "answer",
+            "answer": best_result.payload["answer"],
+            "score": best_result.score
+        }
+
+    elif best_result.score > 0.5:
+
+        return {
+            "status": "clarification",
+            "answer": best_result.payload["answer"],
+            "questions": best_result.payload["additional_questions"],
+            "score": best_result.score
+        }
+
+    else:
+
+        return {
+            "status": "human",
+            "answer": "Передаю оператору",
+            "score": best_result.score
+        }
