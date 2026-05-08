@@ -1,0 +1,282 @@
+[
+    {
+        "query": "не работает форма",
+        "matched_question": "Не работает свайп в галерее на телефоне",
+        "score": 0.751,
+        "status": "clarification",
+        "category": "mobile"
+    },
+    {
+        "query": "форма не отправляется",
+        "matched_question": "Не отправляется форма обратной связи",
+        "score": 0.889,
+        "status": "answer",
+        "category": "forms"
+    },
+    {
+        "query": "не могу войти",
+        "matched_question": "Не могу войти в админку",
+        "score": 0.895,
+        "status": "answer",
+        "category": "access"
+    },
+    {
+        "query": "сайт грузится долго",
+        "matched_question": "Нужен редизайн главной страницы",
+        "score": 0.752,
+        "status": "clarification",
+        "category": "design"
+    },
+    {
+        "query": "как поменять телефон",
+        "matched_question": "Поменяйте телефон в шапке сайта",
+        "score": 0.818,
+        "status": "answer",
+        "category": "information"
+    },
+    {
+        "query": "где посмотреть рекламу",
+        "matched_question": "Где посмотреть отчет по рекламе?",
+        "score": 0.894,
+        "status": "answer",
+        "category": "analytics"
+    },
+    {
+        "query": "страницы сломались",
+        "matched_question": "Можно ли восстановить удалённую страницу?",
+        "score": 0.704,
+        "status": "clarification",
+        "category": "page"
+    },
+    {
+        "query": "не открывается админка",
+        "matched_question": "Да, ежедневная автоматическая выгрузка",
+        "score": 0.801,
+        "status": "answer",
+        "category": "integration"
+    },
+    {
+        "query": "нужна помощь",
+        "matched_question": "Как узнать статистику посещаемости?",
+        "score": 0.666,
+        "status": "clarification",
+        "category": "analytics"
+    },
+    {
+        "query": "ничего не работает",
+        "matched_question": "Не работает корзина в интернет-магазине",
+        "score": 0.815,
+        "status": "answer",
+        "category": "technical"
+    },
+    {
+        "query": "не работает форма",
+        "matched_question": "Не работает свайп в галерее на телефоне",
+        "score": 0.751,
+        "status": "clarification",
+        "category": "mobile"
+    },
+    {
+        "query": "форма не отправляется",
+        "matched_question": "Не отправляется форма обратной связи",
+        "score": 0.889,
+        "status": "answer",
+        "category": "forms"
+    },
+    {
+        "query": "не могу войти",
+        "matched_question": "Не могу войти в админку",
+        "score": 0.895,
+        "status": "answer",
+        "category": "access"
+    },
+    {
+        "query": "сайт грузится долго",
+        "matched_question": "Нужен редизайн главной страницы",
+        "score": 0.752,
+        "status": "clarification",
+        "category": "design"
+    },
+    {
+        "query": "как поменять телефон",
+        "matched_question": "Поменяйте телефон в шапке сайта",
+        "score": 0.818,
+        "status": "answer",
+        "category": "information"
+    },
+    {
+        "query": "где посмотреть рекламу",
+        "matched_question": "Где посмотреть отчет по рекламе?",
+        "score": 0.894,
+        "status": "answer",
+        "category": "analytics"
+    },
+    {
+        "query": "страницы сломались",
+        "matched_question": "Можно ли восстановить удалённую страницу?",
+        "score": 0.704,
+        "status": "clarification",
+        "category": "page"
+    },
+    {
+        "query": "не открывается админка",
+        "matched_question": "Да, ежедневная автоматическая выгрузка",
+        "score": 0.801,
+        "status": "answer",
+        "category": "integration"
+    },
+    {
+        "query": "нужна помощь",
+        "matched_question": "Как узнать статистику посещаемости?",
+        "score": 0.666,
+        "status": "clarification",
+        "category": "analytics"
+    },
+    {
+        "query": "ничего не работает",
+        "matched_question": "Не работает корзина в интернет-магазине",
+        "score": 0.815,
+        "status": "answer",
+        "category": "technical"
+    },
+    {
+        "query": "не работает форма",
+        "matched_question": "Не работает свайп в галерее на телефоне",
+        "score": 0.751,
+        "status": "human",
+        "category": "mobile"
+    },
+    {
+        "query": "форма не отправляется",
+        "matched_question": "Не отправляется форма обратной связи",
+        "score": 0.889,
+        "status": "answer",
+        "category": "forms"
+    },
+    {
+        "query": "не могу войти",
+        "matched_question": "Не могу войти в админку",
+        "score": 0.895,
+        "status": "answer",
+        "category": "access"
+    },
+    {
+        "query": "сайт грузится долго",
+        "matched_question": "Нужен редизайн главной страницы",
+        "score": 0.752,
+        "status": "human",
+        "category": "design"
+    },
+    {
+        "query": "как поменять телефон",
+        "matched_question": "Поменяйте телефон в шапке сайта",
+        "score": 0.818,
+        "status": "human",
+        "category": "information"
+    },
+    {
+        "query": "где посмотреть рекламу",
+        "matched_question": "Где посмотреть отчет по рекламе?",
+        "score": 0.894,
+        "status": "answer",
+        "category": "analytics"
+    },
+    {
+        "query": "страницы сломались",
+        "matched_question": "Можно ли восстановить удалённую страницу?",
+        "score": 0.704,
+        "status": "clarification",
+        "category": "page"
+    },
+    {
+        "query": "не открывается админка",
+        "matched_question": "Да, ежедневная автоматическая выгрузка",
+        "score": 0.801,
+        "status": "human",
+        "category": "integration"
+    },
+    {
+        "query": "нужна помощь",
+        "matched_question": "Как узнать статистику посещаемости?",
+        "score": 0.666,
+        "status": "clarification",
+        "category": "analytics"
+    },
+    {
+        "query": "ничего не работает",
+        "matched_question": "Не работает корзина в интернет-магазине",
+        "score": 0.815,
+        "status": "human",
+        "category": "technical"
+    },
+    {
+        "query": "не работает форма",
+        "matched_question": "Не работает свайп в галерее на телефоне",
+        "score": 0.751,
+        "status": "clarification",
+        "category": "mobile"
+    },
+    {
+        "query": "форма не отправляется",
+        "matched_question": "Не отправляется форма обратной связи",
+        "score": 0.889,
+        "status": "answer",
+        "category": "forms"
+    },
+    {
+        "query": "не могу войти",
+        "matched_question": "Не могу войти в админку",
+        "score": 0.895,
+        "status": "answer",
+        "category": "access"
+    },
+    {
+        "query": "сайт грузится долго",
+        "matched_question": "Нужен редизайн главной страницы",
+        "score": 0.752,
+        "status": "clarification",
+        "category": "design"
+    },
+    {
+        "query": "как поменять телефон",
+        "matched_question": "Поменяйте телефон в шапке сайта",
+        "score": 0.818,
+        "status": "human",
+        "category": "information"
+    },
+    {
+        "query": "где посмотреть рекламу",
+        "matched_question": "Где посмотреть отчет по рекламе?",
+        "score": 0.894,
+        "status": "answer",
+        "category": "analytics"
+    },
+    {
+        "query": "страницы сломались",
+        "matched_question": "Можно ли восстановить удалённую страницу?",
+        "score": 0.704,
+        "status": "clarification",
+        "category": "page"
+    },
+    {
+        "query": "не открывается админка",
+        "matched_question": "Да, ежедневная автоматическая выгрузка",
+        "score": 0.801,
+        "status": "human",
+        "category": "integration"
+    },
+    {
+        "query": "нужна помощь",
+        "matched_question": "Как узнать статистику посещаемости?",
+        "score": 0.666,
+        "status": "clarification",
+        "category": "analytics"
+    },
+    {
+        "query": "ничего не работает",
+        "matched_question": "Не работает корзина в интернет-магазине",
+        "score": 0.815,
+        "status": "human",
+        "category": "technical"
+    }
+]

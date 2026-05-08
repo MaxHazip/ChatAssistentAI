@@ -2,7 +2,7 @@ import json
 from qdrant_client.models import VectorParams, Distance, PointStruct
 from db import client
 from search_engine import get_embedding
-
+from logger import save_log
 
 collection_name = "kb"
 
@@ -36,9 +36,7 @@ def load_knowledge():
 
 
 def upload_data():
-
     knowledge = load_knowledge()
-
     points = []
 
     for item in knowledge:
@@ -53,8 +51,7 @@ def upload_data():
                 payload={
                     "question": item["question"],
                     "answer": item["answer"],
-                    "status": item["status"],
-                    "confidence": item["confidence"],
+                    "category": item["category"],
                     "additional_questions": item["additional_questions"]
                 }
             )
@@ -68,7 +65,16 @@ def upload_data():
     print("Inserted:", len(points))
 
 
+def calculate_status(score):
 
+    if score > 0.85:
+        return "answer"
+
+    elif score > 0.5 and score< 0.77:
+        return "clarification"
+
+    else:
+        return "human"
 
 def search(query: str):
 
@@ -89,29 +95,34 @@ def process_query(query: str):
 
     results = search(query)
 
-    best_result = results[0]
-
-    if best_result.score > 0.8:
-
-        return {
-            "status": "answer",
-            "answer": best_result.payload["answer"],
-            "score": best_result.score
-        }
-
-    elif best_result.score > 0.5:
-
-        return {
-            "status": "clarification",
-            "answer": best_result.payload["answer"],
-            "questions": best_result.payload["additional_questions"],
-            "score": best_result.score
-        }
-
-    else:
-
+    if not results:
         return {
             "status": "human",
-            "answer": "Передаю оператору",
-            "score": best_result.score
+            "answer": "Ничего не найдено"
         }
+
+    best_result = results[0]
+
+    score = best_result.score
+
+    status = calculate_status(score)
+
+    response = {
+        "status": status,
+        "answer": best_result.payload["answer"],
+        "score": round(float(score), 3),
+        "category": best_result.payload["category"]
+    }
+
+    if status == "clarification":
+        response["questions"] = best_result.payload["additional_questions"]
+
+    save_log({
+        "query": query,
+        "matched_question": best_result.payload["question"],
+        "score": round(float(score), 3),
+        "status": status,
+        "category": best_result.payload["category"]
+    })
+
+    return response
