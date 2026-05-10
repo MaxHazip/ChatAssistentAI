@@ -44,9 +44,7 @@ def init_qdrant():
             "last_question": rec["last_question"],
             "question": rec["question"],
             "answer": rec["answer"],
-            "status": rec["status"],
-            "confidence": rec["confidence"],
-            "additional_questions": rec["additional_questions"],
+            "additional_questions": rec["additional_questions"]
         }
 
         points.append(models.PointStruct(

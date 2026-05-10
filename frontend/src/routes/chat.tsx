@@ -80,7 +80,7 @@ function ChatPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/ask`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/send_answer/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: userMsg.text }),
@@ -92,7 +92,7 @@ function ChatPage() {
         ...prev,
         {
           id: (Date.now() + 1).toString(),
-          text: data.answer || data.response || 'Ответ получен.',
+          text: data.answer || 'Ответ получен.',
           sender: 'bot',
           timestamp: 'Сейчас',
         },

@@ -27,8 +27,6 @@ def search_knowledge(user_question: str, top_k: int = 3, min_score: float = 0.6)
             "score": hit.score,
             "answer": hit.payload["answer"],
             "question": hit.payload["question"],
-            "status": hit.payload["status"],
-            "confidence": hit.payload.get("confidence"),
             "metadata": hit.payload
         }
         for hit in points

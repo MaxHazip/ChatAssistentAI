@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pydantic import EmailStr
 from sqlalchemy import DateTime
 from sqlmodel import Field, Relationship, SQLModel
+from pydantic import BaseModel
 
 
 def get_datetime_utc() -> datetime:
@@ -127,3 +128,6 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+class ChatResponse(BaseModel):
+    answer: str
