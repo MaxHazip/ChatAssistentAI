@@ -1,6 +1,5 @@
 from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
-from app.core.config import settings   # если захотите брать хост из настроек
 
 # Если в Settings добавите QDRANT_HOST и QDRANT_PORT, используйте их,
 # пока можно захардкодить, но лучше вынести в .env

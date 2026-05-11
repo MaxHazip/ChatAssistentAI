@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from app.core.qdrant_db import client
 from sentence_transformers import SentenceTransformer
