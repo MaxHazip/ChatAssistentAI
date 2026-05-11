@@ -1,9 +1,15 @@
 from fastapi import APIRouter
-from app.models import ChatResponse
+from app.models import ChatRequest, ChatResponse
 from app.service.chat_service import chat_service
 
 router = APIRouter()
 
-@router.post("/chat", response_model=ChatResponse)
-def chat_endpoint(question: str):
-    return chat_service.process_question(question)
+
+@router.post("", response_model=ChatResponse)
+async def chat_endpoint(request: ChatRequest):
+    """
+    Принимает вопрос пользователя в теле запроса и возвращает
+    структурированный ответ: answer, clarification или human.
+    """
+    result = await chat_service.process_question(request.question)
+    return ChatResponse(**result)

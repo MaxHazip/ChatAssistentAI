@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from pydantic import EmailStr
 from sqlalchemy import DateTime
 from sqlmodel import Field, Relationship, SQLModel
+from typing import List, Optional
+from pydantic import BaseModel
 
 
 def get_datetime_utc() -> datetime:
@@ -129,7 +131,16 @@ class NewPassword(SQLModel):
     new_password: str = Field(min_length=8, max_length=128)
 
 
-class ChatResponse(SQLModel):
-    status: str = Field(default="answer", description="Статус обработки: answer, clarification, human")
-    message: str = Field(..., description="Текстовое сообщение ответа")
-    meta: dict | None = Field(default=None, description="Дополнительные данные (score, вопросы и т.д.)")
+class ChatRequest(BaseModel):
+    """Входящий запрос от пользователя"""
+    question: str = Field(..., min_length=1, description="Текст обращения")
+
+
+class ChatResponse(BaseModel):
+    """Ответ системы на обращение"""
+    status: str = Field(..., description="Статус: 'answer', 'clarification' или 'human'")
+    answer_text: Optional[str] = Field(default=None, description="Текст ответа (если status='answer')")
+    clarification_questions: Optional[List[str]] = Field(default=None, description="Уточняющие вопросы (если status='clarification')")
+    original_question: str = Field(..., description="Исходный вопрос пользователя")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Уверенность системы от 0 до 1")
+    human_notification: Optional[str] = Field(default=None, description="Уведомление о передаче оператору (если status='human')")

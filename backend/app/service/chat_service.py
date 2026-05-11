@@ -1,82 +1,97 @@
-# backend/app/service/chat_service.py
-from typing import Optional, Dict, Any, List
+from typing import List
+from app.core.config import settings
 from app.utils.search import search_knowledge
+
 
 class ChatService:
     """
-    Сервис для обработки входящих вопросов и маршрутизации
-    на основе показателя score из Qdrant.
+    Сервис обработки входящих вопросов с маршрутизацией на основе score из Qdrant.
+    Пороги берутся из настроек (settings):
+      - score > ANSWER_THRESHOLD        → answer
+      - CLARIFICATION_THRESHOLD <= score <= ANSWER_THRESHOLD → clarification
+      - score < CLARIFICATION_THRESHOLD → human
     """
 
-    async def process_question(self, question: str) -> Dict[str, Any]:
+    async def process_question(self, question: str) -> dict:
         """
-        Обрабатывает вопрос пользователя.
-        Возвращает словарь с ключами: status, message, meta.
+        Принимает текст вопроса, ищет в Qdrant и возвращает словарь
+        с полями для ChatResponse.
         """
-        # Шаг 1: Ищем лучший результат в Qdrant
+       
         search_results = search_knowledge(question, top_k=1, min_score=0.0)
 
         if not search_results:
-            # Если совсем ничего не найдено, передаем оператору
+       
             return {
                 "status": "human",
-                "message": "К сожалению, я не нашел подходящего ответа. Ваш запрос передан оператору.",
-                "meta": {
-                    "source": None,
-                    "additional_questions": []
-                }
+                "answer_text": None,
+                "clarification_questions": None,
+                "original_question": question,
+                "confidence": 0.0,
+                "human_notification": (
+                    "К сожалению, я не нашёл подходящего ответа. "
+                    "Ваш запрос передан оператору."
+                ),
             }
 
-        # Берем первый (лучший) результат
-        best_result = search_results[0]
-        score = best_result.get("score", 0.0)
-        answer = best_result.get("answer", "")
-        additional_questions = best_result.get("additional_questions", [])
-        source_status = best_result.get("status", "answer")
+        best = search_results[0]
+        score = best.get("score", 0.0)
+        answer = best.get("answer", "")
+        additional_questions = best.get("additional_questions", [])
 
-        # Шаг 2: Применяем пороговую логику к score
-        if score > 0.8:
-            # Высокий score — сразу даем ответ
+        if score > settings.ANSWER_THRESHOLD:
             return {
                 "status": "answer",
-                "message": answer,
-                "meta": {
-                    "source": "knowledge_base",
-                    "score": score,
-                    "additional_questions": additional_questions
-                }
+                "answer_text": answer,
+                "clarification_questions": None,
+                "original_question": question,
+                "confidence": score,
+                "human_notification": None,
             }
-        elif 0.5 <= score <= 0.8:
-            # Средний score — задаем уточняющие вопросы
-            clarification_text = self._build_clarification_message(answer, additional_questions)
+
+        elif score >= settings.CLARIFICATION_THRESHOLD:
+            clarification_list = self._build_clarification_list(answer, additional_questions)
             return {
                 "status": "clarification",
-                "message": clarification_text,
-                "meta": {
-                    "source": "knowledge_base",
-                    "score": score,
-                    "additional_questions": additional_questions
-                }
+                "answer_text": None,
+                "clarification_questions": clarification_list,
+                "original_question": question,
+                "confidence": score,
+                "human_notification": None,
             }
-        else:  # score < 0.5
-            # Низкий score — передаем оператору
+
+        else:  
             return {
                 "status": "human",
-                "message": "Ваш запрос требует уточнения и передан оператору. Пожалуйста, ожидайте ответа.",
-                "meta": {
-                    "source": "knowledge_base",
-                    "score": score,
-                    "additional_questions": additional_questions
-                }
+                "answer_text": None,
+                "clarification_questions": None,
+                "original_question": question,
+                "confidence": score,
+                "human_notification": (
+                    "Ваш запрос требует уточнения и передан оператору. "
+                    "Пожалуйста, ожидайте ответа."
+                ),
             }
 
-    def _build_clarification_message(self, base_answer: str, additional_questions: List[str]) -> str:
-        """Формирует сообщение с уточняющими вопросами."""
-        msg = base_answer or "Для более точного ответа, пожалуйста, уточните детали."
+    def _build_clarification_list(
+        self, base_answer: str, additional_questions: List[str]
+    ) -> List[str]:
+        """Собирает список уточняющих вопросов."""
+        questions = []
+        if base_answer:
+            questions.append(
+                f"Нашлась похожая информация: «{base_answer}». Уточните, это ваша ситуация?"
+            )
         if additional_questions:
-            questions_formatted = "\n".join([f"- {q}" for q in additional_questions])
-            msg += f"\n\nУточняющие вопросы:\n{questions_formatted}"
-        return msg
+            questions.extend(additional_questions)
+        if not questions:
+            questions = [
+                "Уточните, пожалуйста, что именно не работает?",
+                "На какой странице возникла проблема?",
+                "Когда вы это заметили?",
+            ]
+        return questions
 
-# Экземпляр сервиса для использования в зависимостях
+
+
 chat_service = ChatService()

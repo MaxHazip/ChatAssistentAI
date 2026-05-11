@@ -115,5 +115,12 @@ class Settings(BaseSettings):
 
         return self
 
+    # ==================== Настройки порогов для AI-ассистента ====================
+    ANSWER_THRESHOLD: float = 0.8          # выше — автоматический ответ
+    CLARIFICATION_THRESHOLD: float = 0.5   # ниже — передача оператору
+    QDRANT_HOST: str = "localhost"
+    QDRANT_PORT: int = 6333
+    QDRANT_COLLECTION: str = "knowledge_base"
+
 
 settings = Settings()  # type: ignore
