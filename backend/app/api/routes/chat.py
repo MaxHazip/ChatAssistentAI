@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from app.service.search import search_knowledge, build_context_from_hits
 from app.service.llm import generate_llm_answer
+from app.service.logger import save_log
 
 
 
@@ -12,6 +13,17 @@ class Question(BaseModel):
 
 class Answer(BaseModel):
     answer: str
+
+def calculate_status(score):
+
+    if score > 0.85:
+        return "answer"
+
+    elif score > 0.5 and score< 0.77:
+        return "clarification"
+
+    else:
+        return "human"
 
 
 @router.post("/chat", response_model=Answer)
@@ -29,6 +41,7 @@ async def send_answer(
     results = search_knowledge(normalized_question)
 
     if results == []:
+
         return Answer(answer="Извините, но ничего не найдено. Перенаправляю на специалиста")
     
     # used_chunks тут нужны просто для логов, по факту я могу их убрать, если мы их не будем делать
@@ -41,13 +54,30 @@ async def send_answer(
 
     )
 
+    score = results[0]["score"]
+
+    status = calculate_status(score)
+
+    if status == "clarification":
+        ...
+
+    save_log({
+
+        "query": payload.question,
+        "matched_question": results[0].payload["question"],
+        "score": round(float(score), 3),
+        "status": status,
+        "category": results[0].payload["category"]
+
+    })
+
     if not context_text:
-        return Answer(answer=results[0]["answer"])
+        return Answer(answer=results[0]["answer"], status=status)
     
     llm_answer = generate_llm_answer(normalized_question, context_text)
 
     if not llm_answer:
-        return Answer(answer=results[0]["answer"])
+        return Answer(answer=results[0]["answer"], status=status)
     
-    return Answer(answer=llm_answer)
+    return Answer(answer=llm_answer, status=status)
 
