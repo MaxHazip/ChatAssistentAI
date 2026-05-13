@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from app.service.search import search_knowledge, build_context_from_hits
+from app.service.llm import generate_llm_answer
 
 
 
@@ -11,27 +12,6 @@ class Question(BaseModel):
 
 class Answer(BaseModel):
     answer: str
-
-def generate_llm_answer(user_question: str, context: str) -> str:
-
-    instructions = (
-        "Ты помощник. Отвечай только на основе контекста. "
-        "Если контекста недостаточно, честно скажи об этом."
-    )
-
-    prompt = (
-
-        f"Контекст:\n{context}\n\n"
-        f"Вопрос пользователя:\n{user_question}\n\n"
-        f"Дай понятный ответ на русском языке."
-
-    )
-
-    # Здесь уже скормите этот промпт и инструкции модели, чтобы она уже сконструировала готовый ответ.
-    # Я просто понял так, что нужно именно подключить еще одну модель чтобы она из трех вариантов ответа сделала один корректный,
-    # если нет, то можно обойтись без этой функции и просто возвращать Answer(answer=results[0]["answer"])
-
-    return None
 
 
 @router.post("/chat", response_model=Answer)
