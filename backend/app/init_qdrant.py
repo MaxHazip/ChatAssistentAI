@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from qdrant_client.http import models
+from qdrant_client.models import PointStruct
 from app.core.qdrant_db import client
 from sentence_transformers import SentenceTransformer
 
@@ -37,22 +38,25 @@ def init_qdrant():
         # Векторизуем только текст вопроса
         vector = model.encode(rec["question"]).tolist()
 
-        payload = {
-            "id": rec["id"],
-            "user": rec["user"],
-            "last_question": rec["last_question"],
-            "question": rec["question"],
-            "answer": rec["answer"],
-            "additional_questions": rec["additional_questions"]
-        }
+        points.append(
+            PointStruct(
+                id=rec["id"],
+                vector=vector,
 
-        points.append(models.PointStruct(
-            id=rec["id"],
-            vector=vector,
-            payload=payload
-        ))
+                payload={
+                    "question": rec["question"],
+                    "answer": rec["answer"],
+                    "category": rec["category"],
+                    "additional_questions": rec["additional_questions"]
+                }
+            )
+        )
 
-    client.upsert(collection_name=COLLECTION_NAME, points=points)
+    client.upsert(
+        collection_name=COLLECTION_NAME, 
+        points=points
+    )
+    
     print(f"Загружено {len(points)} записей.")
 
 if __name__ == "__main__":
