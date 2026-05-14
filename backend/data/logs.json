@@ -26,5 +26,26 @@
         "score": 0.89,
         "status": "answer",
         "category": "forms"
+    },
+    {
+        "query": "не отправляется форма",
+        "matched_question": "Не отправляется форма обратной связи",
+        "score": 0.89,
+        "status": "answer",
+        "category": "forms"
+    },
+    {
+        "query": "не отправляется форма",
+        "matched_question": "Не отправляется форма обратной связи",
+        "score": 0.89,
+        "status": "answer",
+        "category": "forms"
+    },
+    {
+        "query": "ыфвыфвф",
+        "matched_question": "Как включить двухфакторную аутентификацию для админки?",
+        "score": 0.641,
+        "status": "clarification",
+        "category": "security"
     }
 ]
