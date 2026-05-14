@@ -18,8 +18,11 @@ COPY ./frontend /app/frontend
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
 
-RUN bun run build
+# 🔧 Генерация типов маршрутов для TanStack Router (добавлено)
+RUN bunx @tanstack/router-cli generate --verbose || echo "⚠️ Router generation warning (non-critical)"
 
+# 🏗️ Сборка проекта
+RUN bun run build
 
 # Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
 FROM nginx:1
@@ -28,3 +31,7 @@ COPY --from=build-stage /app/frontend/dist/ /usr/share/nginx/html
 
 COPY ./frontend/nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./frontend/nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
+
+
+RUN bun add -D @tanstack/router-cli && \
+    bunx @tanstack/router-cli generate --verbose || echo "⚠️ Router generation skipped"

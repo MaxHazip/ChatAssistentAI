@@ -17,10 +17,10 @@ export const Route = createFileRoute('/chat')({
 })
 
 const STATUS_TEXTS: Record<BotStatus, string> = {
-  thinking: '🤔 Готовлю ответ...',
-  clarifying: '❓ Готовлю уточняющий вопрос...',
-  human: '👨‍💼 Подключаю специалиста...',
-  ready: '✅ Ответ готов'
+  thinking: 'Готовлю ответ...',
+  clarifying: 'Готовлю уточняющий вопрос...',
+  human: 'Подключаю специалиста...',
+  ready: 'Ответ готов'
 }
 
 function ChatPage() {
