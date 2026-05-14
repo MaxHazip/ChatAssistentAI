@@ -1,16 +1,27 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 
+type BotStatus = 'thinking' | 'clarifying' | 'human' | 'ready'
+
 type Message = {
   id: string
   text: string
   sender: 'user' | 'bot'
   timestamp: string
+  status?: BotStatus
+  isLoading?: boolean
 }
 
 export const Route = createFileRoute('/chat')({
   component: ChatPage,
 })
+
+const STATUS_TEXTS: Record<BotStatus, string> = {
+  thinking: '🤔 Готовлю ответ...',
+  clarifying: '❓ Готовлю уточняющий вопрос...',
+  human: '👨‍💼 Подключаю специалиста...',
+  ready: '✅ Ответ готов'
+}
 
 function ChatPage() {
   const [isVisible, setIsVisible] = useState(false)
@@ -79,6 +90,19 @@ function ChatPage() {
     setInput('')
     setIsLoading(true)
 
+    const loadingMsgId = (Date.now() + 1).toString()
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: loadingMsgId,
+        text: '',
+        sender: 'bot',
+        timestamp: 'Сейчас',
+        status: 'thinking',
+        isLoading: true
+      }
+    ])
+
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/send_answer/chat`, {
         method: 'POST',
@@ -88,20 +112,31 @@ function ChatPage() {
       if (!response.ok) throw new Error('Ошибка сервера')
       const data = await response.json()
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          text: data.answer || 'Ответ получен.',
-          sender: 'bot',
-          timestamp: 'Сейчас',
-        },
-      ])
+      setMessages((prev) => 
+        prev.map(msg => 
+          msg.id === loadingMsgId 
+            ? {
+                ...msg,
+                text: data.answer || 'Ответ получен.',
+                status: data.status || 'ready',
+                isLoading: false
+              }
+            : msg
+        )
+      )
     } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        { id: (Date.now() + 1).toString(), text: 'Ошибка соединения.', sender: 'bot', timestamp: 'Ошибка' },
-      ])
+      setMessages((prev) => 
+        prev.map(msg => 
+          msg.id === loadingMsgId 
+            ? {
+                ...msg,
+                text: 'Ошибка соединения.',
+                status: 'ready',
+                isLoading: false
+              }
+            : msg
+        )
+      )
     } finally {
       setIsLoading(false)
     }
@@ -111,7 +146,6 @@ function ChatPage() {
 
   return (
     <>
-      {/* Кнопка открытия – показывается только когда чат скрыт */}
       {!isVisible && (
         <button
           onClick={() => setIsVisible(true)}
@@ -124,7 +158,6 @@ function ChatPage() {
         </button>
       )}
 
-      {/* Окно чата – всегда присутствует в DOM, анимация управляется классами */}
       <div
         className={`w-full max-w-[400px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[650px] transition-all duration-300 ease-out transform ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'
@@ -166,7 +199,13 @@ function ChatPage() {
                       : 'bg-[#222222] text-white rounded-2xl rounded-bl-md'
                   }`}
                 >
-                  {msg.text}
+                  {msg.isLoading && msg.status && (
+                    <div className="flex items-center gap-2 text-sm text-gray-300 mb-1">
+                      <span className="animate-pulse">●</span>
+                      <span>{STATUS_TEXTS[msg.status]}</span>
+                    </div>
+                  )}
+                  {msg.text && <p>{msg.text}</p>}
                 </div>
               </div>
             </div>
@@ -182,7 +221,7 @@ function ChatPage() {
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Введите сообщение..."
             disabled={isLoading}
-            className="flex-1 px-4 py-2.5 border border-gray-200 rounded-full text-sm bg-gray-50 text-gray-900 dark:text-gray focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all placeholder:text-gray-400 disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 border border-gray-200 rounded-full text-sm bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all placeholder:text-gray-400 disabled:opacity-50"
           />
           <button
             onClick={handleSend}
