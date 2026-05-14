@@ -1,7 +1,7 @@
 import json
 import os
 
-LOG_FILE = "../data/logs.json"
+LOG_FILE = "./data/logs.json"
 
 def save_log(data):
     logs = []

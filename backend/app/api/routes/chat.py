@@ -13,6 +13,7 @@ class Question(BaseModel):
 
 class Answer(BaseModel):
     answer: str
+    status: str
 
 def calculate_status(score):
 
@@ -34,7 +35,7 @@ async def send_answer(
     normalized_question = payload.question
     
     if not normalized_question.strip():
-        return Answer(answer="Извините, но Вы отправили пустой запрос")
+        return Answer(answer="Извините, но Вы отправили пустой запрос", status="answer")
     
     normalized_question = " ".join(normalized_question.split())
 
@@ -42,7 +43,7 @@ async def send_answer(
 
     if results == []:
 
-        return Answer(answer="Извините, но ничего не найдено. Перенаправляю на специалиста")
+        return Answer(answer="Извините, но ничего не найдено. Перенаправляю на специалиста", status="human")
     
     # used_chunks тут нужны просто для логов, по факту я могу их убрать, если мы их не будем делать
     # это обозначает то, что мы использовали для генерации контекста
@@ -64,10 +65,10 @@ async def send_answer(
     save_log({
 
         "query": payload.question,
-        "matched_question": results[0].payload["question"],
+        "matched_question": results[0]["question"],
         "score": round(float(score), 3),
         "status": status,
-        "category": results[0].payload["category"]
+        "category": results[0]["metadata"]["category"]
 
     })
 

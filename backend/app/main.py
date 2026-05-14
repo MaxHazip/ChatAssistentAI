@@ -20,6 +20,10 @@ app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
 )
 
+print("=== CORS origins ===", settings.all_cors_origins)
+print("BACKEND_CORS_ORIGINS:", settings.BACKEND_CORS_ORIGINS)
+print("FRONTEND_HOST:", settings.FRONTEND_HOST)
+
 # Set all CORS enabled origins
 if settings.all_cors_origins:
     app.add_middleware(
