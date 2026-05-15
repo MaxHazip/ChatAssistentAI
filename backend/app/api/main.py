@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import items, login, private, users, utils, init_app, chat
+from app.api.routes import items, login, private, users, utils, init_app, chat, knowledge
 from app.core.config import settings
 
 api_router = APIRouter()
@@ -10,8 +10,7 @@ api_router.include_router(utils.router)
 api_router.include_router(items.router)
 api_router.include_router(init_app.router, prefix="/init", tags=["init"])
 api_router.include_router(chat.router, prefix="/send_answer", tags=["qdrant"])
-
-
+api_router.include_router(knowledge.router, prefix="/knowledge", tags=["knowledge"])
 
 if settings.ENVIRONMENT == "local":
     api_router.include_router(private.router)

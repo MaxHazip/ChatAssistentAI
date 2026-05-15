@@ -1,4 +1,5 @@
-import { Briefcase, Home, Users } from "lucide-react"
+// frontend/src/components/Sidebar/AppSidebar.tsx
+import { Briefcase, Database, Home, Users } from "lucide-react"
 
 import { SidebarAppearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"
@@ -15,6 +16,7 @@ import { User } from "./User"
 const baseItems: Item[] = [
   { icon: Home, title: "Dashboard", path: "/" },
   { icon: Briefcase, title: "Items", path: "/items" },
+  { icon: Database, title: "База знаний", path: "/add-knowledge" },
 ]
 
 export function AppSidebar() {
@@ -25,15 +27,16 @@ export function AppSidebar() {
     : baseItems
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="px-4 py-6 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:items-center">
-        <Logo variant="responsive" />
+    <Sidebar>
+      <SidebarHeader>
+        <Logo />
       </SidebarHeader>
       <SidebarContent>
         <Main items={items} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarAppearance />
+        {/* Передаём currentUser в компонент User */}
         <User user={currentUser} />
       </SidebarFooter>
     </Sidebar>
