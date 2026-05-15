@@ -117,5 +117,26 @@
         "score": 0.89,
         "status": "answer",
         "category": "forms"
+    },
+    {
+        "query": "вывфыцйфы",
+        "matched_question": "рецифра.рф",
+        "score": 0.746,
+        "status": "answer",
+        "category": "domains"
+    },
+    {
+        "query": "пидорас",
+        "matched_question": "Да, подключите",
+        "score": 0.701,
+        "status": "answer",
+        "category": "security"
+    },
+    {
+        "query": "пидорас",
+        "matched_question": "Да, подключите",
+        "score": 0.701,
+        "status": "answer",
+        "category": "security"
     }
 ]

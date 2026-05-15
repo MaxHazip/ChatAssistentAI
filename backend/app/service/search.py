@@ -1,13 +1,25 @@
 from app.core.qdrant_db import model, client
 from typing import List, Dict, Tuple
+import re
 
 COLLECTION_NAME = "knowledge_base"
 
-def search_knowledge(user_question: str, top_k: int = 3, min_score: float = 0.6):
+def is_nonsense(text: str) -> bool:
+    """Проверяет, является ли текст набором случайных букв."""
+    # Если в тексте нет ни одной гласной (для кириллицы и латиницы) 
+    # или слишком мало пробелов при большой длине
+    if not re.search(r'[аеёиоуыэюяaeiouy]', text.lower()):
+        return True
+    return False
+
+def search_knowledge(user_question: str, top_k: int = 3, min_score: float = 0.45):
     """
-    Возвращает список словарей с ключами: score, answer, question, status, confidence, metadata.
-    Если подходящих не найдено — пустой список.
+    Возвращает список подходящих ответов. 
+    Порог min_score подняли, чтобы совсем мусор не проходил.
     """
+    if is_nonsense(user_question):
+        return []
+
     vector = model.encode(user_question).tolist()
 
     results = client.query_points(
@@ -15,11 +27,10 @@ def search_knowledge(user_question: str, top_k: int = 3, min_score: float = 0.6)
         query=vector,
         limit=top_k,
         with_payload=True,
-        score_threshold=min_score
+        score_threshold=min_score  # Qdrant сам отсечет 
     )
 
     points = results.points
-
     if not points:
         return []
 
