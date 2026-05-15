@@ -13,85 +13,63 @@ class Answer(BaseModel):
     answer: str
     status: str
 
-def calculate_status(score):
-
-    if score > 0.7:
+def calculate_status(score: float) -> str:
+    if score >= 0.70:
         return "answer"
-
-    elif 0.40 <= score < 0.7:
+    elif 0.40 <= score < 0.70:
         return "clarification"
-
     else:
         return "human"
 
 @router.post("/chat", response_model=Answer)
-async def send_answer(payload: Question) -> Answer:
+async def send_answer(payload: Question):
     user_query = payload.question.strip()
     
-    # проверка на пустоту
-    if not user_query:
-        return Answer(answer="Вы отправили пустой запрос", status="answer")
-
-    # Поиск в базе 
+    # 1. Поиск в Qdrant
     results = search_knowledge(user_query)
-
-    #  Если ничего не найдено  статус human
     if not results:
-        return Answer(
-            answer="Я не нашел точного ответа в своей базе. Переключаю вас на специалиста, он скоро ответит.",
-            status="human"
-        )
+        return Answer(answer="Я не нашел информации. Переключаю на оператора.", status="human")
 
     score = results[0]["score"]
     status = calculate_status(score)
 
-    #  Если статус human по скору 
+    # 2. Обработка низкого скора
     if status == "human":
+        return Answer(answer="Затрудняюсь ответить. Позову человека.", status="human")
+
+    # 3. Формирование контекста
+    context_text, _ = build_context_from_hits(hits=results)
+
+    # 4. Если статус "уточнение" — сразу предлагаем варианты, не тратя токены
+    if status == "clarification":
+        options = [res["question"] for res in results[:2]]
+        options_fmt = "\n — ".join(options)
         return Answer(
-            answer="Моих знаний недостаточно для точного ответа. Передаю диалог оператору.",
-            status="human"
+            answer=f"Возможно, вы имели в виду:\n — {options_fmt}?",
+            status="clarification"
         )
 
-    
-    if status == "clarification":
-            # Собираем уникальные вопросы из топ-результатов 
-            # Исключаем дубликаты, если они вдруг есть
-            options = []
-            for res in results:
-                q_text = res["question"]
-                if q_text not in options:
-                    options.append(q_text)
-            
-            # Формируем текст ответа
-            options_text = "\n".join([f"• {opt}" for opt in options])
-            
-            return Answer(
-                answer=(
-                    f"Я не совсем уверен, что правильно вас понял.\n"
-                    f"Возможно, вас интересует один из этих вопросов:\n\n"
-                    f"{options_text}\n\n"
-                    f"Если нет, напишите в чат вызовите оператора."
-                ),
-                status="clarification"
-            )
+    # 5. Вызов LLM (Baidu CoBuddy)
+    llm_final_answer = generate_llm_answer(user_query, context_text)
 
-    #  status == "answer" — работаем с LLM или базой
-    context_text, used_chunks = build_context_from_hits(hits=results)
+    # Логика обработки ответов LLM
+    if "[NONSENSE]" in llm_final_answer:
+        return Answer(answer="Я не понимаю это сообщение. Зову человека.", status="human")
     
-    # Логируем успех
+    if "[NOT_FOUND]" in llm_final_answer:
+        return Answer(answer="В базе нет точного ответа. Передаю вопрос менеджеру.", status="human")
+
+    # Если нейронка выдала ошибку (например, 429), отдаем лучший ответ из базы напрямую
+    if "[ERROR]" in llm_final_answer:
+        return Answer(answer=results[0]["answer"], status="answer")
+
+    # Сохраняем успешный лог
     save_log({
         "query": user_query,
         "matched_question": results[0]["question"],
         "score": round(float(score), 3),
         "status": status,
-        "category": results[0]["metadata"].get("category", "general")
+        "category": results[0].get("metadata", {}).get("category", "general")
     })
 
-    if not context_text:
-        return Answer(answer=results[0]["answer"], status=status)
-    
-    # Вызов LLM (пока ваша старая функция)
-    llm_answer = generate_llm_answer(user_query, context_text)
-    
-    final_text = llm_answer if llm_answer else results[0]["answer"]
-    return Answer(answer=final_text, status=status)
+    return Answer(answer=llm_final_answer, status="answer")

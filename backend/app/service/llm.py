@@ -1,20 +1,43 @@
-def generate_llm_answer(user_question: str, context: str) -> str:
+import os
+from dotenv import load_dotenv
+from openai import OpenAI
 
-    instructions = (
-        "Ты помощник. Отвечай только на основе контекста. "
-        "Если контекста недостаточно, честно скажи об этом."
-    )
+# Загружаем ключ из .env
+load_dotenv()
 
-    prompt = (
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+)
 
-        f"Контекст:\n{context}\n\n"
-        f"Вопрос пользователя:\n{user_question}\n\n"
-        f"Дай понятный ответ на русском языке."
+def generate_llm_answer(user_query: str, context_text: str):
+    """
+    Вызов Baidu CoBuddy с включенным reasoning для фильтрации и суммаризации.
+    """
+    system_instruction = """
+    Ты — интеллектуальный модератор поддержки. 
+    1. Проанализируй вопрос пользователя. Если это случайный набор букв, бессмыслица или спам — ответь только одним словом: [NONSENSE]
+    2. Если вопрос понятен, посмотри на предоставленный КОНТЕКСТ.
+    3. Если в КОНТЕКСТЕ нет ответа — ответь только одним словом: [NOT_FOUND]
+    4. Если ответ есть — сформируй единый вежливый ответ на основе контекста.
+    """
 
-    )
+    user_content = f"КОНТЕКСТ:\n{context_text}\n\nВОПРОС:\n{user_query}"
 
-    # Здесь уже скормите этот промпт и инструкции модели, чтобы она уже сконструировала готовый ответ.
-    # Я просто понял так, что нужно именно подключить еще одну модель чтобы она из трех вариантов ответа сделала один корректный,
-    # если нет, то можно обойтись без этой функции и просто возвращать Answer(answer=results[0]["answer"])
-
-    return None
+    try:
+        response = client.chat.completions.create(
+            model="baidu/cobuddy:free",
+            messages=[
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": user_content}
+            ],
+            # Включаем логику рассуждений, как в твоем примере
+            extra_body={"reasoning": {"enabled": True}}
+        )
+        
+        # Модели с reasoning могут возвращать основной контент здесь
+        return response.choices[0].message.content.strip()
+    
+    except Exception as e:
+        print(f"Ошибка вызова CoBuddy: {e}")
+        return "[ERROR]"

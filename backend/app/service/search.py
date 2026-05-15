@@ -5,29 +5,38 @@ import re
 COLLECTION_NAME = "knowledge_base"
 
 def is_nonsense(text: str) -> bool:
-    """Проверяет, является ли текст набором случайных букв."""
-    # Если в тексте нет ни одной гласной (для кириллицы и латиницы) 
-    # или слишком мало пробелов при большой длине
-    if not re.search(r'[аеёиоуыэюяaeiouy]', text.lower()):
+    """
+    Проверяет, является ли текст бессмысленным набором символов.
+    """
+    text = text.lower().strip()
+    
+    #  Слишком короткие сообщения 
+    if len(text) < 3:
         return True
+        
+    #  Проверка на наличие гласных  
+    if not re.search(r'[аеёиоуыэюяaeiouy]', text):
+        return True
+        
+    # 'ааааааа')
+    if re.search(r'(.)\1{4,}', text):
+        return True
+
     return False
 
-def search_knowledge(user_question: str, top_k: int = 3, min_score: float = 0.45):
-    """
-    Возвращает список подходящих ответов. 
-    Порог min_score подняли, чтобы совсем мусор не проходил.
-    """
+def search_knowledge(user_question: str, top_k: int = 3):
+    
     if is_nonsense(user_question):
-        return []
+        return [] # Возвращаем пустой список,  'human'
 
     vector = model.encode(user_question).tolist()
 
     results = client.query_points(
-        collection_name=COLLECTION_NAME,
+        collection_name="knowledge_base",
         query=vector,
         limit=top_k,
         with_payload=True,
-        score_threshold=min_score  # Qdrant сам отсечет 
+        score_threshold=0.45  # Игнорируем всё, что совпадает 
     )
 
     points = results.points
