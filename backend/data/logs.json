@@ -47,5 +47,68 @@
         "score": 0.641,
         "status": "clarification",
         "category": "security"
+    },
+    {
+        "query": "не отправляется форма",
+        "matched_question": "Не отправляется форма обратной связи",
+        "score": 0.89,
+        "status": "answer",
+        "category": "forms"
+    },
+    {
+        "query": "вфывыф",
+        "matched_question": "рецифра.рф",
+        "score": 0.707,
+        "status": "clarification",
+        "category": "domains"
+    },
+    {
+        "query": "цйвйвыфакацвысмвфыскфывся",
+        "matched_question": "рецифра.рф",
+        "score": 0.659,
+        "status": "clarification",
+        "category": "domains"
+    },
+    {
+        "query": "пидорас",
+        "matched_question": "Да, подключите",
+        "score": 0.701,
+        "status": "clarification",
+        "category": "security"
+    },
+    {
+        "query": "гей",
+        "matched_question": "сайт грузится долго",
+        "score": 0.689,
+        "status": "clarification",
+        "category": "technical"
+    },
+    {
+        "query": "жопа ебанная",
+        "matched_question": "Да, права редактора есть, но кнопка «Опубликовать» неактивна",
+        "score": 0.682,
+        "status": "clarification",
+        "category": "cms"
+    },
+    {
+        "query": "пидорас",
+        "matched_question": "Да, подключите",
+        "score": 0.701,
+        "status": "clarification",
+        "category": "security"
+    },
+    {
+        "query": "бля ебаный гондон не нужна мне услуга",
+        "matched_question": "сайт грузится долго",
+        "score": 0.719,
+        "status": "clarification",
+        "category": "technical"
+    },
+    {
+        "query": "уебище ты",
+        "matched_question": "В мобильной версии не открывается выпадающее меню",
+        "score": 0.604,
+        "status": "human",
+        "category": "mobile"
     }
 ]

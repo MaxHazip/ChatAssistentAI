@@ -20,7 +20,7 @@ def calculate_status(score):
     if score > 0.85:
         return "answer"
 
-    elif score > 0.5 and score< 0.77:
+    elif score > 0.7 and score< 0.77:
         return "clarification"
 
     else:
@@ -70,7 +70,7 @@ async def send_answer(payload: Question) -> Answer:
     status = calculate_status(score)
 
     if status == "clarification":
-        ...
+        return Answer(answer="на проверке", status=status)
 
     save_log({
 
